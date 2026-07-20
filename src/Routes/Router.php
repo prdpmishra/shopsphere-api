@@ -5,10 +5,16 @@ declare(strict_types=1);
 namespace App\Routes;
 
 use App\Controllers\ProductController;
+use App\Container\Container;
 
 class Router
 {
     private array $routes = [];
+
+    public function __construct(private Container $container)
+    {
+
+    }
 
     public function get(string $uri, string $controller, string $action): void
     {
@@ -79,7 +85,7 @@ class Router
     {
         $action = $route['action'];
 
-        $controller = new $route['controller'];
+        $controller = $this->container->make($route['controller']);
 
         if (!method_exists($controller, $action)) {
             throw new \Exception("Method {$action} does not exist.");

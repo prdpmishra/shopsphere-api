@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use App\Container\Container;
 use App\Routes\Router;
 use App\Controllers\ProductController;
 
-$router = new Router();
+$container = new Container();
+
+$router = $container->make(Router::class);
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
