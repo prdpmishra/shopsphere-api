@@ -14,4 +14,14 @@ class ProductController
             'message' => 'Products API is working!'
         ]);
     }
+
+    public function  show(int $id): void
+    {
+        header('Content-Type: application/json');
+
+        echo json_encode([
+            'id' => $id,
+            'message' => "Showing product {$id}"
+        ]);
+    }
 }
