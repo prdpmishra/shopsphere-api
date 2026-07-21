@@ -26,9 +26,18 @@ class ProductController
     {
         header('Content-Type: application/json');
 
-        echo json_encode([
-            'id' => $id,
-            'message' => "Showing product {$id}"
-        ]);
+        $product = $this->service->getProduct($id);
+
+        if ($product === null) {
+            http_response_code(404);
+
+            echo json_encode([
+                'message' => 'Product not found!'
+            ]);
+
+            return;
+        }
+
+        echo json_encode($product);
     }
 }

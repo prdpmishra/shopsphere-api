@@ -5,18 +5,32 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Database\DatabaseConnection;
+use PDO;
 
 class ProductRepository
 {
-    public function __construct(private DatabaseConnection $database)
-    {
+    private PDO $database;
 
+    public function __construct(DatabaseConnection $database)
+    {
+        $this->database = $database->getConnection();
     }
 
     public function all(): array
     {
-        $products = $this->database->getConnection()->query("SELECT * FROM products");
+        $products = $this->database->query("SELECT * FROM products");
 
         return $products->rowCount() > 0 ? $products->fetchAll() : [];
+    }
+
+    public function find(int $id): ?array
+    {
+        $statement = $this->database->prepare("SELECT * FROM products WHERE id = :id");
+
+        $statement->execute([
+            "id" => $id
+        ]);
+
+        return $statement->rowCount() > 0 ? $statement->fetch() : null;
     }
 }

@@ -17,4 +17,9 @@ class ProductService
     {
         return $this->repository->all();
     }
+
+    public function getProduct(int $id): ?array
+    {
+        return $this->repository->find($id);
+    }
 }

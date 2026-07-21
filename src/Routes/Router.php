@@ -73,7 +73,9 @@ class Router
     {
         http_response_code(404);
 
-        echo "404 Not Found!";
+        echo json_encode([
+            'message' => 'Not Found'
+        ]);
     }
 
     private function isParameter(string $routePart): bool
@@ -91,7 +93,7 @@ class Router
             throw new \Exception("Method {$action} does not exist.");
         }
 
-        $controller->$action((int) current($parameters));
+        $controller->$action(...array_map('intval', array_values($parameters)));
     }
 
     public function dispatch(string $method, string $uri): void
