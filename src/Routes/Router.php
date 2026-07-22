@@ -6,6 +6,7 @@ namespace App\Routes;
 
 use App\Controllers\ProductController;
 use App\Container\Container;
+use ReflectionMethod;
 
 class Router
 {
@@ -93,7 +94,36 @@ class Router
             throw new \Exception("Method {$action} does not exist.");
         }
 
-        $controller->$action(...array_map('intval', array_values($parameters)));
+        $args = [];
+
+        $reflection = new ReflectionMethod($controller, $action);
+
+        foreach ($reflection->getParameters() as $parameter) {
+            $name = $parameter->getName();
+            $type = $parameter->getType()?->getName();
+
+            if (!array_key_exists($name, $parameters)) {
+                if ($parameter->isDefaultValueAvailable()) {
+                    $args[] = $parameter->getDefaultValue();
+
+                    continue;
+                }
+
+                throw new \Exception(
+                    "Missing route parameter '{$name}'."
+                );
+            }
+
+            $value = $parameters[$name];
+
+            $args[] = match ($type) {
+                'int' => (int) $value,
+                'float' => (float) $value,
+                default => $value
+            };
+        }
+
+        $controller->$action(...$args);
     }
 
     public function dispatch(string $method, string $uri): void
