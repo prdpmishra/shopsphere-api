@@ -1,0 +1,19 @@
+### Get all products
+GET http://localhost:8000/products
+
+###
+
+### Get one product
+GET http://localhost:8000/products/1
+
+###
+
+### Create product
+POST http://localhost:8000/products
+Content-Type: application/json
+
+{
+    "name": "Monitor",
+    "price": 12000,
+    "quantity": 5
+}

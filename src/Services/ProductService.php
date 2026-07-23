@@ -22,4 +22,9 @@ class ProductService
     {
         return $this->repository->find($id);
     }
+
+    public function createProduct(array $data): bool
+    {
+        return $this->repository->create($data);
+    }
 }

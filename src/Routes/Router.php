@@ -29,6 +29,18 @@ class Router
         ];
     }
 
+    public function post(string $uri, string $controller, string $action): void
+    {
+        if (isset($rhis->routes['POST'][$uri])) {
+            throw new \Exception("Route already registered");
+        }
+
+        $this->routes['POST'][$uri] = [
+            'controller' => $controller,
+            'action' => $action
+        ];
+    }
+
     private function findRoute(string $method, string $uri): ?array
     {
         $parameters = [];

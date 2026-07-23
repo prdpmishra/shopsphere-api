@@ -16,5 +16,6 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 $router->get('/products', ProductController::class, 'index');
 $router->get('/products/{id}', ProductController::class, 'show');
+$router->post('/products', ProductController::class, 'store');
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $uri);

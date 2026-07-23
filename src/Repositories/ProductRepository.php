@@ -33,4 +33,17 @@ class ProductRepository
 
         return $statement->rowCount() > 0 ? $statement->fetch() : null;
     }
+
+    public function create(array $data): bool
+    {
+        $statement = $this->database->prepare("INSERT INTO products (name, price, quantity) VALUES (:name, :price, :quantity)");
+
+        $statement->execute([
+            "name" => $data['name'],
+            "price" => $data['price'],
+            "quantity" => $data['quantity'],
+        ]);
+
+        return true;
+    }
 }
