@@ -46,4 +46,29 @@ class ProductRepository
 
         return true;
     }
+
+    public function update(int $id, array $data): bool
+    {
+        $statement = $this->database->prepare("UPDATE products SET name = :name, price = :price, quantity = :quantity WHERE id = :id");
+
+        $statement->execute([
+            "name" => $data['name'],
+            "price" => $data['price'],
+            "quantity" => $data['quantity'],
+            "id" => $id,
+        ]);
+
+        return $statement->rowCount() > 0;
+    }
+
+    public function delete(int $id): bool
+    {
+        $statement = $this->database->prepare("DELETE FROM products WHERE id = :id");
+
+        $statement->execute([
+            "id" => $id
+        ]);
+
+        return true;
+    }
 }

@@ -22,7 +22,7 @@ class ProductController
         );
     }
 
-    public function  show(int $id): void
+    public function show(int $id): void
     {
         header('Content-Type: application/json');
 
@@ -73,6 +73,66 @@ class ProductController
 
         echo json_encode([
             'message' => 'Product created successfully!'
+        ]);
+    }
+
+    public function update(int $id): void
+    {
+        header('Content-Type: application/json');
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            http_response_code(400);
+
+            echo json_encode([
+                'message' => 'Invalid request data!'
+            ]);
+
+            return;
+        } elseif (!isset($data['name'], $data['quantity'], $data['price']) || !is_string($data['name']) || trim($data['name']) === '') {
+            http_response_code(400);
+
+            echo json_encode([
+                'message' => 'Invalid request data!'
+            ]);
+
+            return;
+        } elseif (!is_int($data['quantity']) || !(is_int($data['price']) || is_float($data['price']))) {
+            http_response_code(400);
+
+            echo json_encode([
+                'message' => 'Invalid request data!'
+            ]);
+
+            return;
+        }
+
+        $response = $this->service->updateProduct($id, $data);
+
+        if ($response) {
+            http_response_code(200);
+
+            $message = 'Product updated successfully!';
+        } else {
+            http_response_code(200);
+
+            $message = 'Nothing to update!';
+        }
+
+        echo json_encode([
+            'message' => $message
+        ]);
+    }
+
+    public function delete(int $id): void
+    {
+        header('Content-Type: application/json');
+
+        $this->service->deleteProduct($id);
+
+        echo json_encode([
+            'message' => 'Product deleted successfully!'
         ]);
     }
 }

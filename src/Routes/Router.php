@@ -17,32 +17,44 @@ class Router
 
     }
 
-    public function get(string $uri, string $controller, string $action): void
+    private function addRoute(string $method, string $uri, string $controller, string $action): void
     {
-        if (isset($this->routes['GET'][$uri])) {
+        if (isset($this->routes[$method][$uri])) {
             throw new \Exception("Route already registered");
         }
 
-        $this->routes['GET'][$uri] = [
+        $this->routes[$method][$uri] = [
             'controller' => $controller,
             'action' => $action
         ];
+    }
+
+    public function get(string $uri, string $controller, string $action): void
+    {
+        $this->addRoute('GET', $uri, $controller, $action);
     }
 
     public function post(string $uri, string $controller, string $action): void
     {
-        if (isset($rhis->routes['POST'][$uri])) {
-            throw new \Exception("Route already registered");
-        }
+        $this->addRoute('POST', $uri, $controller, $action);
+    }
 
-        $this->routes['POST'][$uri] = [
-            'controller' => $controller,
-            'action' => $action
-        ];
+    public function put(string $uri, string $controller, string $action): void
+    {
+        $this->addRoute('PUT', $uri, $controller, $action);
+    }
+
+    public function delete(string $uri, string $controller, string $action): void
+    {
+        $this->addRoute('DELETE', $uri, $controller, $action);
     }
 
     private function findRoute(string $method, string $uri): ?array
     {
+        if (!isset($this->routes[$method])) {
+            return null;
+        }
+
         $parameters = [];
 
         $uriParts = explode('/', $uri);

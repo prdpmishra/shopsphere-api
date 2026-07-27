@@ -27,4 +27,14 @@ class ProductService
     {
         return $this->repository->create($data);
     }
+
+    public function updateProduct(int $id, array $data): bool
+    {
+        return $this->repository->update($id, $data);
+    }
+
+    public function deleteProduct(int $id): bool
+    {
+        return $this->repository->delete($id);
+    }
 }

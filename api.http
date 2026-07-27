@@ -13,7 +13,20 @@ POST http://localhost:8000/products
 Content-Type: application/json
 
 {
-    "name": "Monitor",
-    "price": 12000,
+    "name": "T-Shirt",
+    "price": 2000,
+    "quantity": 50
+}
+
+### Update product
+PUT http://localhost:8000/products/2
+Content-Type: application/json
+
+{
+    "name": "iPhone",
+    "price": 120000,
     "quantity": 5
 }
+
+### Delete product
+DELETE http://localhost:8000/products/5
