@@ -6,6 +6,7 @@ namespace App\Routes;
 
 use App\Controllers\ProductController;
 use App\Container\Container;
+use App\Http\Request;
 use ReflectionMethod;
 
 class Router
@@ -126,6 +127,12 @@ class Router
             $name = $parameter->getName();
             $type = $parameter->getType()?->getName();
 
+            if ($type !== null && class_exists($type)) {
+                $args[] = $this->container->make($type);
+
+                continue;
+            }
+
             if (!array_key_exists($name, $parameters)) {
                 if ($parameter->isDefaultValueAvailable()) {
                     $args[] = $parameter->getDefaultValue();
@@ -150,9 +157,10 @@ class Router
         $controller->$action(...$args);
     }
 
-    public function dispatch(string $method, string $uri): void
+    public function dispatch(Request $request): void
     {
-        $method = strtoupper($method);
+        $method = strtoupper($request->method());
+        $uri = $request->uri();
 
         $result = $this->findRoute($method, $uri);
 

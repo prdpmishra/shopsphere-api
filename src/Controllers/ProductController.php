@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Http\Request;
+use App\Http\Response;
 use App\Services\ProductService;
 
 class ProductController
@@ -15,95 +17,59 @@ class ProductController
 
     public function index(): void
     {
-        header('Content-Type: application/json');
-
-        echo json_encode(
-            $this->service->getProducts()
-        );
+        Response::json($this->service->getProducts());
     }
 
     public function show(int $id): void
     {
-        header('Content-Type: application/json');
-
         $product = $this->service->getProduct($id);
 
         if ($product === null) {
-            http_response_code(404);
-
-            echo json_encode([
-                'message' => 'Product not found!'
-            ]);
+            Response::json(['message' => 'Product not found!'], 404);
 
             return;
         }
 
-        echo json_encode($product);
+        Response::json($product);
     }
 
-    public function store(): void
+    public function store(Request $request): void
     {
-        header('Content-Type: application/json');
-
         $valid = true;
 
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = $request->all();
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
+        if (!isset($data['name'], $data['quantity'], $data['price'])) {
             $valid = false;
-        } elseif (!isset($data['name'], $data['quantity'], $data['price'])) {
-            $valid = false;
-        } elseif (!is_int($data['quantity']) || !is_int($data['price']) || !is_float($data['price'])) {
+        } elseif (!is_int($data['quantity']) || !(is_int($data['price']) || is_float($data['price']))) {
             $valid = false;
         }
 
         if (!$valid) {
-            http_response_code(400);
-
-            echo json_encode([
-                'message' => 'Invalid request data!'
-            ]);
+            Response::json(['message' => 'Invalid request data!']);
 
             return;
         }
 
         $this->service->createProduct($data);
 
-        http_response_code(201);
-
-        echo json_encode([
-            'message' => 'Product created successfully!'
-        ]);
+        Response::json(['message' => 'Product created successfully!'], 201);
     }
 
-    public function update(int $id): void
+    public function update(Request $request, int $id): void
     {
-        header('Content-Type: application/json');
-
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = $request->all();
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            http_response_code(400);
-
-            echo json_encode([
-                'message' => 'Invalid request data!'
-            ]);
+            Response::json(['message' => 'Invalid request data!'], 400);
 
             return;
         } elseif (!isset($data['name'], $data['quantity'], $data['price']) || !is_string($data['name']) || trim($data['name']) === '') {
-            http_response_code(400);
-
-            echo json_encode([
-                'message' => 'Invalid request data!'
-            ]);
+            Response::json(['message' => 'Invalid request data!'], 400);
 
             return;
         } elseif (!is_int($data['quantity']) || !(is_int($data['price']) || is_float($data['price']))) {
-            http_response_code(400);
-
-            echo json_encode([
-                'message' => 'Invalid request data!'
-            ]);
+            Response::json(['message' => 'Invalid request data!'], 400);
 
             return;
         }
@@ -111,28 +77,18 @@ class ProductController
         $response = $this->service->updateProduct($id, $data);
 
         if ($response) {
-            http_response_code(200);
-
             $message = 'Product updated successfully!';
         } else {
-            http_response_code(200);
-
             $message = 'Nothing to update!';
         }
 
-        echo json_encode([
-            'message' => $message
-        ]);
+        Response::json(['message' => $message]);
     }
 
     public function delete(int $id): void
     {
-        header('Content-Type: application/json');
-
         $this->service->deleteProduct($id);
 
-        echo json_encode([
-            'message' => 'Product deleted successfully!'
-        ]);
+        Response::json(['message' => 'Product deleted successfully!']);
     }
 }

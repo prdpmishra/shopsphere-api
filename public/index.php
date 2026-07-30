@@ -7,6 +7,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Container\Container;
 use App\Routes\Router;
 use App\Controllers\ProductController;
+use App\Http\Request;
 
 $container = new Container();
 
@@ -20,4 +21,6 @@ $router->post('/products', ProductController::class, 'store');
 $router->put('/products/{id}', ProductController::class, 'update');
 $router->delete('/products/{id}', ProductController::class, 'delete');
 
-$router->dispatch($_SERVER['REQUEST_METHOD'], $uri);
+$request = new Request();
+
+$router->dispatch($request);
