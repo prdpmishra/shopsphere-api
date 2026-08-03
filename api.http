@@ -13,9 +13,9 @@ POST http://localhost:8000/products
 Content-Type: application/json
 
 {
-    "name": "T-Shirt Green",
-    "price": 2000,
-    "quantity": 50
+    "name": 123,
+    "price": "aaa",
+    "quantity": 300
 }
 
 ### Update product
@@ -25,7 +25,7 @@ Content-Type: application/json
 {
     "name": "iPhone",
     "price": 120000,
-    "quantity": 50
+    "quantity": 500
 }
 
 ### Delete product

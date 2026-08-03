@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Http\Request;
 use App\Http\Response;
 use App\Services\ProductService;
+use App\Validation\Validator;
 
 class ProductController
 {
@@ -35,18 +36,20 @@ class ProductController
 
     public function store(Request $request): void
     {
-        $valid = true;
-
         $data = $request->all();
 
-        if (!isset($data['name'], $data['quantity'], $data['price'])) {
-            $valid = false;
-        } elseif (!is_int($data['quantity']) || !(is_int($data['price']) || is_float($data['price']))) {
-            $valid = false;
-        }
+        $validator = new Validator($data);
 
-        if (!$valid) {
-            Response::json(['message' => 'Invalid request data!']);
+        $validator->validate([
+            'name' => ['required', 'string'],
+            'price' => ['required', 'numeric', 'min:1'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        if ($validator->fails()) {
+            Response::json([
+                'errors' => $validator->errors()
+            ], 422);
 
             return;
         }
@@ -60,16 +63,18 @@ class ProductController
     {
         $data = $request->all();
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            Response::json(['message' => 'Invalid request data!'], 400);
+        $validator = new Validator($data);
 
-            return;
-        } elseif (!isset($data['name'], $data['quantity'], $data['price']) || !is_string($data['name']) || trim($data['name']) === '') {
-            Response::json(['message' => 'Invalid request data!'], 400);
+        $validator->validate([
+            'name' => ['required', 'string'],
+            'price' => ['required', 'numeric', 'min:1'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:100'],
+        ]);
 
-            return;
-        } elseif (!is_int($data['quantity']) || !(is_int($data['price']) || is_float($data['price']))) {
-            Response::json(['message' => 'Invalid request data!'], 400);
+        if ($validator->fails()) {
+            Response::json([
+                'errors' => $validator->errors()
+            ], 422);
 
             return;
         }
