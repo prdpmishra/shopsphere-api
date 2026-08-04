@@ -24,7 +24,7 @@ Content-Type: application/json
 
 {
     "name": "iPhone",
-    "price": 120000,
+    "price": "120000r",
     "quantity": 500
 }
 

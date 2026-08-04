@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Http\Request;
 use App\Http\Response;
+use App\Requests\StoreProductRequest;
+use App\Requests\UpdateProductRequest;
 use App\Services\ProductService;
-use App\Validation\Validator;
 
 class ProductController
 {
@@ -34,50 +34,18 @@ class ProductController
         Response::json($product);
     }
 
-    public function store(Request $request): void
+    public function store(StoreProductRequest $request): void
     {
-        $data = $request->all();
-
-        $validator = new Validator($data);
-
-        $validator->validate([
-            'name' => ['required', 'string'],
-            'price' => ['required', 'numeric', 'min:1'],
-            'quantity' => ['required', 'integer', 'min:1', 'max:100'],
-        ]);
-
-        if ($validator->fails()) {
-            Response::json([
-                'errors' => $validator->errors()
-            ], 422);
-
-            return;
-        }
+        $data = $request->validated();
 
         $this->service->createProduct($data);
 
         Response::json(['message' => 'Product created successfully!'], 201);
     }
 
-    public function update(Request $request, int $id): void
+    public function update(UpdateProductRequest $request, int $id): void
     {
-        $data = $request->all();
-
-        $validator = new Validator($data);
-
-        $validator->validate([
-            'name' => ['required', 'string'],
-            'price' => ['required', 'numeric', 'min:1'],
-            'quantity' => ['required', 'integer', 'min:1', 'max:100'],
-        ]);
-
-        if ($validator->fails()) {
-            Response::json([
-                'errors' => $validator->errors()
-            ], 422);
-
-            return;
-        }
+        $data = $request->validated();
 
         $response = $this->service->updateProduct($id, $data);
 

@@ -7,7 +7,9 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Container\Container;
 use App\Routes\Router;
 use App\Controllers\ProductController;
+use App\Exceptions\ValidationException;
 use App\Http\Request;
+use App\Http\Response;
 
 $container = new Container();
 
@@ -23,4 +25,15 @@ $router->delete('/products/{id}', ProductController::class, 'delete');
 
 $request = new Request();
 
-$router->dispatch($request);
+try {
+    $router->dispatch($request);
+} catch (ValidationException $e) {
+    Response::json([
+        'message' => $e->getMessage(),
+        'errors' => $e->errors()
+    ], 422);
+} catch (\Throwable $e) {
+    Response::json([
+        'message' => 'Internal Server Error'
+    ], 500);
+}

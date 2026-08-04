@@ -50,7 +50,11 @@ class Validator
     {
         $value = $this->value($field);
 
-        if (array_key_exists($field, $this->data) && !is_string($value)) {
+        if ($value === null || $value === '') {
+            return $this;
+        }
+
+        if (!is_string($value)) {
             $this->addError($field, "The {$field} field must be a string.");
         }
 
@@ -61,7 +65,11 @@ class Validator
     {
         $value = $this->value($field);
 
-        if (array_key_exists($field, $this->data) && !is_integer($value)) {
+        if ($value === null || $value === '') {
+            return $this;
+        }
+
+        if (!is_integer($value)) {
             $this->addError($field, "The {$field} field must be an integer.");
         }
 
@@ -72,7 +80,11 @@ class Validator
     {
         $value = $this->value($field);
 
-        if (array_key_exists($field, $this->data) && !is_numeric($value)) {
+        if ($value === null || $value === '') {
+            return $this;
+        }
+
+        if (!is_numeric($value)) {
             $this->addError($field, "The {$field} field must be numeric.");
         }
 
@@ -83,7 +95,7 @@ class Validator
     {
         $value = $this->value($field);
 
-        if ($value === null || $value === '') {
+        if ($value === null || $value === '' || !is_numeric($value)) {
             return $this;
         }
 
@@ -98,7 +110,7 @@ class Validator
     {
         $value = $this->value($field);
 
-        if ($value === null || $value === '') {
+        if ($value === null || $value === '' || !is_numeric($value)) {
             return $this;
         }
 
