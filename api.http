@@ -24,8 +24,8 @@ Content-Type: application/json
 
 {
     "name": "iPhone",
-    "price": "120000r",
-    "quantity": 500
+    "price": 1200,
+    "quantity": 80
 }
 
 ### Delete product

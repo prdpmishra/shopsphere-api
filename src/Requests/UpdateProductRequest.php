@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Requests;
 
-use App\Exceptions\ValidationException;
-use App\Http\Request;
-use App\Validation\Validator;
+use App\Http\FormRequest;
 
-class UpdateProductRequest extends Request
+class UpdateProductRequest extends FormRequest
 {
     public function rules(): array
     {
@@ -17,20 +15,5 @@ class UpdateProductRequest extends Request
             'price' => ['required', 'numeric', 'min:1'],
             'quantity' => ['required', 'integer', 'min:1', 'max:100'],
         ];
-    }
-
-    public function validated(): array
-    {
-        $data = $this->all();
-
-        $validator = new Validator($data);
-
-        $validator->validate($this->rules());
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator->errors());
-        }
-
-        return $data;
     }
 }

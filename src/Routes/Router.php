@@ -8,6 +8,7 @@ use App\Controllers\ProductController;
 use App\Container\Container;
 use App\Http\Request;
 use ReflectionMethod;
+use ReflectionNamedType;
 
 class Router
 {
@@ -125,6 +126,14 @@ class Router
 
         foreach ($reflection->getParameters() as $parameter) {
             $name = $parameter->getName();
+            $type = $parameter->getType();
+
+            if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
+                $args[] = $this->container->make($type->getName());
+
+                continue;
+            }
+
             $type = $parameter->getType()?->getName();
 
             if ($type !== null && class_exists($type)) {
