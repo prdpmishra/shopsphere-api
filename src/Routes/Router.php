@@ -7,6 +7,8 @@ namespace App\Routes;
 use App\Controllers\ProductController;
 use App\Container\Container;
 use App\Http\Request;
+use App\Middleware\MiddlewareInterface;
+use Closure;
 use ReflectionMethod;
 use ReflectionNamedType;
 
@@ -19,7 +21,7 @@ class Router
 
     }
 
-    private function addRoute(string $method, string $uri, string $controller, string $action): void
+    private function addRoute(string $method, string $uri, string $controller, string $action, array $middleware = []): void
     {
         if (isset($this->routes[$method][$uri])) {
             throw new \Exception("Route already registered");
@@ -27,28 +29,29 @@ class Router
 
         $this->routes[$method][$uri] = [
             'controller' => $controller,
-            'action' => $action
+            'action' => $action,
+            'middleware' => $middleware
         ];
     }
 
-    public function get(string $uri, string $controller, string $action): void
+    public function get(string $uri, string $controller, string $action, array $middleware = []): void
     {
-        $this->addRoute('GET', $uri, $controller, $action);
+        $this->addRoute('GET', $uri, $controller, $action, $middleware);
     }
 
-    public function post(string $uri, string $controller, string $action): void
+    public function post(string $uri, string $controller, string $action, array $middleware = []): void
     {
-        $this->addRoute('POST', $uri, $controller, $action);
+        $this->addRoute('POST', $uri, $controller, $action, $middleware);
     }
 
-    public function put(string $uri, string $controller, string $action): void
+    public function put(string $uri, string $controller, string $action, array $middleware = []): void
     {
-        $this->addRoute('PUT', $uri, $controller, $action);
+        $this->addRoute('PUT', $uri, $controller, $action, $middleware);
     }
 
-    public function delete(string $uri, string $controller, string $action): void
+    public function delete(string $uri, string $controller, string $action, array $middleware = []): void
     {
-        $this->addRoute('DELETE', $uri, $controller, $action);
+        $this->addRoute('DELETE', $uri, $controller, $action, $middleware);
     }
 
     private function findRoute(string $method, string $uri): ?array
@@ -110,7 +113,7 @@ class Router
         return str_starts_with($routePart, '{') && str_ends_with($routePart, '}');
     }
 
-    private function execute(array $route, array $parameters): void
+    private function execute(array $route, array $parameters, Request $request): void
     {
         $action = $route['action'];
 
@@ -163,7 +166,11 @@ class Router
             };
         }
 
-        $controller->$action(...$args);
+        $destination = function (Request $request) use ($controller, $action, $args): void {
+            $controller->$action(...$args);
+        };
+
+        $this->runMiddleware($route['middleware'], $request, $destination);
     }
 
     public function dispatch(Request $request): void
@@ -179,6 +186,30 @@ class Router
             return;
         }
 
-        $this->execute($result['route'], $result['parameters']);
+        $this->execute($result['route'], $result['parameters'], $request);
+    }
+
+    private function runMiddleware(array $middleware, Request $request, Closure $destination): void {
+        if (empty($middleware)) {
+            $destination($request);
+
+            return;
+        }
+
+        $middlewareClass = array_shift($middleware);
+
+        $instance = $this->container->make($middlewareClass);
+
+        if (!$instance instanceof MiddlewareInterface) {
+            throw new \Exception(
+                "{$middlewareClass} must implement MiddlewareInterface."
+            );
+        }
+
+        $next = function (Request $request) use ($middleware, $destination): void {
+            $this->runMiddleware($middleware, $request, $destination);
+        };
+
+        $instance->handle($request, $next);
     }
 }
