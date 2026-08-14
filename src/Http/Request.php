@@ -46,4 +46,13 @@ class Request
     {
         return $this->json();
     }
+
+    public function header(string $key, mixed $default = null): mixed
+    {
+        $key = strtoupper(str_replace('-', '_', $key));
+
+        $server_key = 'HTTP_' . $key;
+
+        return $_SERVER[$server_key] ?? $default;
+    }
 }

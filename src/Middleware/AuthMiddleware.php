@@ -16,13 +16,23 @@ class AuthMiddleware implements MiddlewareInterface
             Response::json([
                 'message' => 'Unauthenticated.'
             ], 401);
+
+            return;
         }
 
         $next($request);
     }
 
-    private function isAuthenticated($request): bool
+    private function isAuthenticated(Request $request): bool
     {
-        return true;
+        $auth_header = $request->header('Authorization');
+
+        if (!is_string($auth_header) || !str_starts_with($auth_header, 'Bearer ')) {
+            return false;
+        }
+
+        $auth_token = substr($auth_header, 7);
+
+        return $auth_token === 'valid-token';
     }
 }
